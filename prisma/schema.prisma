@@ -15,7 +15,7 @@ model Vendor {
   /// Unique identifier for the vendor
   id                 String   @id @default(cuid())
   /// Human-readable name of the vendor (e.g., "Signzy", "Karza")
-  name               String
+  name               String   @unique
   /// The capability this vendor provides (e.g., "PAN_VERIFICATION", "OCR")
   capability         String
   /// The URL to send the actual vendor request to

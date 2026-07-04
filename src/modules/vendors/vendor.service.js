@@ -10,15 +10,24 @@ export const registerVendor = async (vendorData) => {
     supportedFeatures: JSON.stringify(vendorData.supportedFeatures),
   };
   
-  const vendor = await prisma.vendor.create({
-    data: dataToSave,
-  });
-  
-  // Format response to return array instead of string
-  return {
-    ...vendor,
-    supportedFeatures: JSON.parse(vendor.supportedFeatures),
-  };
+  try {
+    const vendor = await prisma.vendor.create({
+      data: dataToSave,
+    });
+    
+    // Format response to return array instead of string
+    return {
+      ...vendor,
+      supportedFeatures: JSON.parse(vendor.supportedFeatures),
+    };
+  } catch (error) {
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      const customError = new Error('A vendor with this name already exists. Vendor names must be unique.');
+      customError.statusCode = 400;
+      throw customError;
+    }
+    throw error;
+  }
 };
 
 /**
