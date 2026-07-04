@@ -42,7 +42,7 @@ const callGroq = async (prompt) => {
 
 export const recommendStrategy = async (capability) => {
   const metrics = await getLiveMetrics(capability);
-  const prompt = recommendStrategyPrompt(capability, metrics);
+  const prompt = recommendStrategyPrompt(capability, JSON.stringify(metrics));
   return callGroq(prompt);
 };
 
@@ -56,7 +56,7 @@ export const explainDecision = async (logId) => {
 
 export const detectUnhealthy = async () => {
   const metrics = await getLiveMetrics();
-  const prompt = detectUnhealthyPrompt(metrics);
+  const prompt = detectUnhealthyPrompt(JSON.stringify(metrics));
   return callGroq(prompt);
 };
 
