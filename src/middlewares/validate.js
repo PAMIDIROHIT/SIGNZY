@@ -12,8 +12,14 @@ export const validate = (schema, property = 'body') => {
     try {
       const validatedData = schema.parse(req[property]);
       // Re-assign the validated data back to the request object
-      // This ensures defaults are applied and extra fields are stripped (if configured in schema)
-      req[property] = validatedData;
+      // Express 5 defines req.query as a getter on the prototype, so direct assignment throws an error.
+      // We use Object.defineProperty to override it on this specific request instance.
+      Object.defineProperty(req, property, {
+        value: validatedData,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
       next();
     } catch (err) {
       if (err instanceof z.ZodError) {
