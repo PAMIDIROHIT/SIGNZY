@@ -1,0 +1,227 @@
+{
+	"info": {
+		"_postman_id": "d8e3b3a4-9c81-4b12-b1c4-5d5b7a1e3f89",
+		"name": "Intelligent Vendor Routing API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Health & Metrics",
+			"item": [
+				{
+					"name": "Get System Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"health"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Vendor Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/vendor-metrics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"vendor-metrics"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Vendor Management",
+			"item": [
+				{
+					"name": "Register Vendor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"VendorA\",\n  \"capability\": \"PAN_VERIFICATION\",\n  \"endpointUrl\": \"http://localhost:3000/simulate/VendorA/verify\",\n  \"priority\": 1,\n  \"weight\": 70,\n  \"costPerRequest\": 1.5,\n  \"timeoutMs\": 2000,\n  \"rateLimitPerMinute\": 100\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/vendors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"vendors"
+							]
+						}
+					}
+				},
+				{
+					"name": "List Vendors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/vendors?capability=PAN_VERIFICATION",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"vendors"
+							],
+							"query": [
+								{
+									"key": "capability",
+									"value": "PAN_VERIFICATION"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Core Routing",
+			"item": [
+				{
+					"name": "Route Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"capability\": \"PAN_VERIFICATION\",\n  \"payload\": {\n    \"pan\": \"ABCDE1234F\",\n    \"name\": \"Rahul Sharma\"\n  },\n  \"requirements\": {\n    \"maxLatencyMs\": 2000,\n    \"preferLowCost\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/route",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"route"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Routing Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/routing-logs?page=1&limit=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"routing-logs"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Agentic AI",
+			"item": [
+				{
+					"name": "Recommend Strategy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"capability\": \"PAN_VERIFICATION\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/agent/recommend-strategy",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"agent",
+								"recommend-strategy"
+							]
+						}
+					}
+				},
+				{
+					"name": "Generate Config",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Send 70% of traffic to Vendor A, and 30% to Vendor B.\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/agent/generate-config",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"agent",
+								"generate-config"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

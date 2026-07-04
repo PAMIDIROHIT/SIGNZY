@@ -1,0 +1,121 @@
+// prisma/schema.prisma
+// Database schema for the Intelligent Vendor Routing Platform
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// Represents a registered vendor that can serve requests
+model Vendor {
+  /// Unique identifier for the vendor
+  id                 String   @id @default(cuid())
+  /// Human-readable name of the vendor (e.g., "Signzy", "Karza")
+  name               String
+  /// The capability this vendor provides (e.g., "PAN_VERIFICATION", "OCR")
+  capability         String
+  /// The URL to send the actual vendor request to
+  endpointUrl        String
+  /// Priority for priority-based routing (lower number = higher priority)
+  priority           Int      @default(99)
+  /// Weight for weighted routing (e.g., 70 for 70% traffic)
+  weight             Int      @default(0)
+  /// Cost per successful API call
+  costPerRequest     Float    @default(0.0)
+  /// Maximum time allowed before aborting the request to this vendor
+  timeoutMs          Int      @default(5000)
+  /// Allowed requests per minute for rate limiting
+  rateLimitPerMinute Int      @default(60)
+  /// JSON array of features this vendor supports
+  supportedFeatures  String   @default("[]") // Stored as JSON string
+  /// Whether this vendor is currently active and can receive traffic
+  isActive           Boolean  @default(true)
+  
+  /// Timestamp of creation
+  createdAt          DateTime @default(now())
+  /// Timestamp of last update
+  updatedAt          DateTime @updatedAt
+
+  /// Metrics associated with this vendor
+  metrics            VendorMetricSnapshot[]
+}
+
+/// Log of every routing decision made by the system
+model RoutingLog {
+  /// Unique identifier for the log entry
+  id                 String   @id @default(cuid())
+  /// The capability requested
+  capability         String
+  /// The incoming request payload (JSON string)
+  requestPayload     String
+  /// List of vendor names that were considered (JSON string)
+  vendorsConsidered  String
+  /// The vendor that was finally selected to serve the request
+  vendorSelected     String?
+  /// List of vendors rejected and why (JSON string)
+  rejectedVendors    String
+  /// The routing strategy that was applied
+  strategyUsed       String
+  /// Final status of the routing attempt ("SUCCESS" or "FAILURE")
+  status             String
+  /// Total latency of the successful request (if any)
+  latencyMs          Int?
+  /// The cost incurred for the request
+  cost               Float?
+  /// Plain-english explanation of why the vendor was chosen
+  routingReason      String?
+  
+  /// Timestamp of the request
+  createdAt          DateTime @default(now())
+}
+
+/// Periodic snapshots of vendor metrics for historical tracking
+model VendorMetricSnapshot {
+  /// Unique identifier for the snapshot
+  id                  String   @id @default(cuid())
+  
+  /// Vendor this snapshot belongs to
+  vendor              Vendor   @relation(fields: [vendorId], references: [id])
+  /// Foreign key to the vendor
+  vendorId            String
+  
+  /// Start of the time window for these metrics
+  windowStart         DateTime
+  /// End of the time window for these metrics
+  windowEnd           DateTime
+  
+  /// Total requests sent to the vendor in this window
+  requestCount        Int
+  /// Number of successful requests
+  successCount        Int
+  /// Number of failed requests
+  errorCount          Int
+  /// Average latency in milliseconds
+  avgLatencyMs        Float
+  /// Percentage of time the vendor was available
+  availabilityPercent Float
+  
+  /// When this snapshot was recorded in DB
+  createdAt           DateTime @default(now())
+}
+
+/// Configuration for routing strategies per capability
+model RoutingRule {
+  /// Unique identifier for the rule
+  id                 String   @id @default(cuid())
+  /// The capability this rule applies to
+  capability         String   @unique
+  /// The strategy to use (e.g., "lowest_latency", "weighted")
+  strategy           String
+  /// JSON configuration for the strategy (thresholds, cooldowns, etc)
+  config             String   @default("{}") // Stored as JSON string
+  
+  /// Timestamp of creation
+  createdAt          DateTime @default(now())
+  /// Timestamp of last update
+  updatedAt          DateTime @updatedAt
+}
